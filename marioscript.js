@@ -13,26 +13,42 @@ const context = canvas.getContext("2d");
 
 let gravity = 0.8;
 let offset = 0;
+let key = "";
 
 class Player {
     constructor() {
         this.position = { x: 100, y: 100 };
-        this.width = 50;
-        this.height = 50;
+        this.width = 80;
+        this.height = 177;
         this.velocity = { x: 0, y: 1 };
+        this.frames = 1;
     }
 
     draw() {
-        context.fillStyle = "red";
-        context.fillRect(this.position.x, this.position.y, this.width, this.height);
+        if (this.velocity.y == 0 && this.velocity.x == 0) {
+            if (key == "right")
+                context.drawImage(marioStandingRight, 177 * this.frames, 0, 177, 400, this.position.x, this.position.y, this.width, this.height);
+            if (key == "left")
+                context.drawImage(marioStandingLeft, 177 * this.frames, 0, 177, 400, this.position.x, this.position.y, this.width, this.height);
+        }
+        if (this.velocity.x > 0)
+
+            context.drawImage(marioMovingRight, 340 * this.frames, 0, 340, 400, this.position.x, this.position.y, 155, 185);
+        if (this.velocity.x < 0)
+            context.drawImage(marioMovingLeft, 340 * this.frames, 0, 340, 400, this.position.x, this.position.y, 155, 185);
+
     }
 
     playerMovement() {
-        if (this.position.y + this.velocity.y + this.height >= canvas.height + 20) {
+        this.frames++;
+        if (this.frames > 24)
+            this.frames = 1;
+
+
+        if (this.position.y + this.velocity.y + this.height >= canvas.height + 60) {
             this.velocity.y = 0;
             alert("Game Over!!!")
-            this.position.x = 100;
-            this.position.y = 100;
+            window.location.reload();
         }
 
         else
@@ -95,7 +111,17 @@ class Hills {
 
 const hillsFigure = new Hills();
 
-const playerFigure = new Player();
+let marioStandingRight = new Image();
+marioStandingRight.src = "marioimages/spriteStandRight.png";
+
+let marioStandingLeft = new Image();
+marioStandingLeft.src = "marioimages/spriteStandLeft.png";
+
+let marioMovingRight = new Image();
+marioMovingRight.src = "marioimages/spriteRunRight.png";
+
+let marioMovingLeft = new Image();
+marioMovingLeft.src = "marioimages/spriteRunLeft.png";
 
 const platformsArray = [];
 let first = new Image();
@@ -103,30 +129,42 @@ let second = new Image();
 first.src = "marioimages/platform.png";
 second.src = "marioimages/platformSmallTall.png"
 const platformFigure = new Platform(0, 500, 600, 150, first);
-const platformFigure2 = new Platform(750, 450, 300, second.width, second);
-const platformFigure3 = new Platform(1200, 500, 600, 150, first);
+const platformFigure2 = new Platform(platformFigure.width - 4, 500, 600, 150, first);
+const platformFigure3 = new Platform(platformFigure.width * 2 + 80, 450, 300, second.width, second);
+const platformFigure4 = new Platform(platformFigure.width * 2 + second.width + 82, 500, 600, 150, first);
+const platformFigure5 = new Platform(platformFigure.width * 3 + second.width - 4, 500, 600, 150, first);
 
 platformsArray.push(platformFigure);
 platformsArray.push(platformFigure2);
 platformsArray.push(platformFigure3);
+platformsArray.push(platformFigure4);
+platformsArray.push(platformFigure5);
+
+const playerFigure = new Player();
+playerFigure.draw();
 
 //PLAYER MOVEMENT JUMP, LEFT, RIGHT
 addEventListener("keydown", function (event) {
     if (event.key == "ArrowRight") {
+        key = "right";
         playerFigure.velocity.x = 5;
         if (playerFigure.position.x + playerFigure.width >= 300)
             moveOffset(-5);
+        if (playerFigure.position.x >= 500)
+            playerFigure.position.x = 500;
     }
 
-
     if (event.key == "ArrowLeft") {
+        key = "left";
         playerFigure.velocity.x = -5;
         if (playerFigure.position.x + playerFigure.width <= 600)
             moveOffset(5);
     }
 
-    if (event.key == "ArrowUp")
+    if (event.key == "ArrowUp") {
+        key = "up";
         playerFigure.velocity.y = -20;
+    }
 })
 
 addEventListener("keyup", function (event) {
@@ -135,7 +173,6 @@ addEventListener("keyup", function (event) {
 
     if (event.key == "ArrowLeft")
         playerFigure.velocity.x = 0;
-
 })
 
 
